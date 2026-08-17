@@ -11,6 +11,12 @@ export class InputController {
     // Имя события деактивации активности
     ACTION_DEACTIVATED = 'input-controller:action-deactivated';
 
+    // Map с ключами actionName (имя активности) и значениями enabled (флаг включения активности)
+    #actionsMap = new Map();
+    // Map с ключами keyCode (код клавиши) и значениями actionName (имя активности)
+    #keysMap = new Map();
+    // Прикрепленный DOM элемент
+    #target;
 
     /**
      * @param {object} [actionsToBind] - необязательный аргумент. Объект со списком активностей вида 
@@ -23,7 +29,13 @@ export class InputController {
      * @param {object} [target] - необязательный аргумент. DOM элемент для прослушивания событий клавиатуры и диспатча кастомных событий
      */
     constructor(actionsToBind, target) {
+        if (actionsToBind && typeof actionsToBind === 'object') {
+            this.bindActions(actionsToBind);
+        }
 
+        if (target && typeof target === 'object') {
+            this.#target = target;
+        }
     }
     /**
      * Добавляет в контроллер переданные активности
@@ -36,7 +48,26 @@ export class InputController {
      * }
      */
     bindActions(actionsToBind) {
+        for (let actionName in actionsToBind) {
+            const isActionEnabled = Boolean(actionsToBind[actionName].enabled);
+            const keys = actionsToBind[actionName].keys;
 
+            if (!this.#actionsMap.has(actionName)) {
+                this.#actionsMap.set(
+                    actionName,
+                    isActionEnabled
+                );
+            }
+
+            Array.isArray(keys) && keys.forEach(keyCode => {
+                if (!this.#keysMap.has(keyCode)) {
+                    this.#keysMap.set(
+                        keyCode,
+                        actionName
+                    );
+                }
+            });
+        }
     }
 
     /**
