@@ -46,7 +46,7 @@ export class InputController {
         }
 
         if (target && typeof target === 'object') {
-            this.#target = target;
+            this.attach(target);
         }
     }
     /**
