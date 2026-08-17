@@ -220,6 +220,10 @@ class InputController {
 
             if (actionName) {
                 this.#pressedKeys.add(keyCode);
+                this.#actionsMap.set(actionName, {
+                    ...this.#actionsMap.get(actionName),
+                    active: true
+                });
                 this.#emitEventForAction(this.ACTION_ACTIVATED, actionName);
             }
         }
@@ -236,6 +240,10 @@ class InputController {
 
             if (actionName) {
                 this.#pressedKeys.delete(keyCode);
+                this.#actionsMap.set(actionName, {
+                    ...this.#actionsMap.get(actionName),
+                    active: false
+                });
                 this.#emitEventForAction(this.ACTION_DEACTIVATED, actionName);
             }
         }
