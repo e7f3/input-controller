@@ -75,7 +75,12 @@ export class InputController {
      * @param {string} actionName - имя активности
      */
     enableAction(actionName) {
-
+        if (this.#actionsMap.has(actionName)) {
+            this.#actionsMap.set(
+                actionName,
+                true
+            );
+        }
     }
 
     /**
@@ -83,7 +88,12 @@ export class InputController {
      * @param {string} actionName - имя активности
      */
     disableAction(actionName) {
-
+        if (this.#actionsMap.has(actionName)) {
+            this.#actionsMap.set(
+                actionName,
+                false
+            );
+        }
     }
 
     /**
