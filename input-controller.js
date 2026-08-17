@@ -61,22 +61,22 @@ export class InputController {
      */
     bindActions(actionsToBind) {
         for (let actionName in actionsToBind) {
-                const keys = actionsToBind[actionName]?.keys;
-                const enabled = actionsToBind[actionName]?.enabled
+            const keys = actionsToBind[actionName]?.keys;
+            const enabled = actionsToBind[actionName]?.enabled
 
-                // Для каждого из кодов клавиш добавляем его в Map если такого кода еще там нет
-                for (let key of keys) {
-                    !this.#keysMap.get(key) && this.#keysMap.set(key, actionName);
+            // Для каждого из кодов клавиш добавляем его в Map если такого кода еще там нет
+            for (let key of keys) {
+                !this.#keysMap.get(key) && this.#keysMap.set(key, actionName);
+            }
+
+            this.#actionsMap.set(
+                actionName,
+                {
+                    keys: keys || [],
+                    enabled: enabled || false,
+                    active: false
                 }
-
-                this.#actionsMap.set(
-                    actionName,
-                    {
-                        keys: keys || [],
-                        enabled: enabled || false,
-                        active: false
-                    }
-                );
+            );
         }
     }
 
@@ -148,8 +148,8 @@ export class InputController {
     detach() {
         // Удаляем обработчики
         if (this.#target) {
-        this.#target.removeEventListener('keydown', this.#onKeyDown);
-        this.#target.removeEventListener('keyup', this.#onKeyUp);
+            this.#target.removeEventListener('keydown', this.#onKeyDown);
+            this.#target.removeEventListener('keyup', this.#onKeyUp);
         }
 
         if (this.#parentWindow) {
@@ -211,7 +211,7 @@ export class InputController {
             return actionName;
         }
     }
- 
+
     /**
      * Обработчик для события keydown
      * @param {object} event - объект Keyboard Event
@@ -242,12 +242,12 @@ export class InputController {
             const actionName = this.#getEnabledActionName(keyCode);
 
             if (actionName) {
-            this.#pressedKeys.delete(keyCode);
+                this.#pressedKeys.delete(keyCode);
                 this.#emitEventForAction(this.ACTION_DEACTIVATED, actionName);
             }
         }
     }
-
+    
     /**
      * Обработчик для события blur
      * @param {object} event объект Focus Event
@@ -265,4 +265,4 @@ export class InputController {
         this.focused = true;
         this.enabled = true;
     }
-} 
+}
