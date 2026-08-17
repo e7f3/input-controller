@@ -13,8 +13,8 @@ export class InputController {
 
     // Map с ключами actionName (имя активности) и значениями enabled (флаг включения активности)
     #actionsMap = new Map();
-    // Map с ключами keyCode (код клавиши) и значениями actionName (имя активности)
-    #keysMap = new Map();
+    // Set с keyCode (код клавиши) нажатых клавиш 
+    #pressedKeys = new Set();
     // Прикрепленный DOM элемент
     #target;
 
@@ -58,14 +58,6 @@ export class InputController {
                 );
             }
 
-            Array.isArray(keys) && keys.forEach(keyCode => {
-                if (!this.#keysMap.has(keyCode)) {
-                    this.#keysMap.set(
-                        keyCode,
-                        actionName
-                    );
-                }
-            });
         }
     }
 
@@ -139,7 +131,7 @@ export class InputController {
      * @returns {boolean}
      */
     isKeyPressed(keyCode) {
-
+        return this.#pressedKeys.has(keyCode);
     }
  
 } 
