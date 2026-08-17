@@ -253,7 +253,8 @@ export class InputController {
      * @param {object} event объект Focus Event
      */
     #onBlur(event) {
-
+        this.focused = false;
+        this.enabled = false;
     }
 
     /**
@@ -261,6 +262,7 @@ export class InputController {
      * @param {object} event объект Focus Event 
      */
     #onFocus(event) {
-
+        this.focused = true;
+        this.enabled = true;
     }
 } 
