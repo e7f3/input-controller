@@ -157,10 +157,23 @@ export class InputController {
  
     /**
      * Обработчик для события keydown
-     * @param {object} event 
+     * @param {object} event - объект Keyboard Event
      */
     #onKeyDown(event) {
-        
+        const keyCode = event.keyCode;
+        if (keyCode) {
+            if (this.#pressedKeys.has(keyCode)) {
+                return;
+            }
+
+            const actions = this.#actionsMap.values();
+            for (let action of action) {
+                if (action.keys.has(keyCode)) {
+                    this.#pressedKeys.add(keyCode);
+                    return;
+                }
+            }
+        }
     }
 
     /**
