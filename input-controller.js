@@ -116,6 +116,10 @@ export class InputController {
     attach(target, dontEnable) {
         this.#target = target;
 
+        // Подписываемся на события и добавляем обработчики
+        this.#target.addEventListener('keydown', this.#onKeyDown);
+        this.#target.addEventListener('keyup', this.#onKeyUp);
+
         if (dontEnable) {
             this.enabled = false;
         }
@@ -125,6 +129,10 @@ export class InputController {
      * Отцеплят контроллер от DOM элемента и деактивирует контроллер 
      */
     detach() {
+        // Удаляем обработчики
+        this.#target.removeEventListener('keydown', this.#onKeyDown);
+        this.#target.removeEventListener('keyup', this.#onKeyUp);
+    
         this.#target = null;
         this.enabled = false;
     }
@@ -147,4 +155,19 @@ export class InputController {
         return this.#pressedKeys.has(keyCode);
     }
  
+    /**
+     * Обработчик для события keydown
+     * @param {object} event 
+     */
+    #onKeyDown(event) {
+        
+    }
+
+    /**
+     * Обработчик для события keyup
+     * @param {object} event 
+     */
+    #onKeyUp(event) {
+
+    }
 } 
