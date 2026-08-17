@@ -11,7 +11,15 @@ export class InputController {
     // Имя события деактивации активности
     ACTION_DEACTIVATED = 'input-controller:action-deactivated';
 
-    // Map с ключами actionName (имя активности) и значениями enabled (флаг включения активности)
+    /**
+     * Map с ключами actionName (имя активности) и объектом вида
+     * {
+     *      keys: new Set(),
+     *      enabled: false,
+     *      active: false,
+     * }
+     * в качестве значений
+     **/
     #actionsMap = new Map();
     // Set с keyCode (код клавиши) нажатых клавиш 
     #pressedKeys = new Set();
@@ -49,12 +57,17 @@ export class InputController {
      */
     bindActions(actionsToBind) {
         for (let actionName in actionsToBind) {
-            const keys = actionsToBind[actionName].keys;
-
             if (!this.#actionsMap.has(actionName)) {
+                const keys = actionsToBind[actionName]?.keys;
+                const enabled = actionsToBind[actionName]?.enabled
+
                 this.#actionsMap.set(
                     actionName,
-                    actionsToBind[actionName]
+                    {
+                        keys: keys || [],
+                        enabled: enabled || false,
+                        active: false
+                    }
                 );
             }
 
@@ -122,7 +135,7 @@ export class InputController {
      * @returns {boolean} статус активности true/false
      */
     isActionActive(actionName) {
-
+        return this.#actionsMap.get(actionName)?.active || false;
     }
 
     /**
