@@ -49,13 +49,12 @@ export class InputController {
      */
     bindActions(actionsToBind) {
         for (let actionName in actionsToBind) {
-            const isActionEnabled = Boolean(actionsToBind[actionName].enabled);
             const keys = actionsToBind[actionName].keys;
 
             if (!this.#actionsMap.has(actionName)) {
                 this.#actionsMap.set(
                     actionName,
-                    isActionEnabled
+                    actionsToBind[actionName]
                 );
             }
 
@@ -76,9 +75,13 @@ export class InputController {
      */
     enableAction(actionName) {
         if (this.#actionsMap.has(actionName)) {
+            const action = this.#actionsMap.get(actionName);
             this.#actionsMap.set(
                 actionName,
-                true
+                {
+                    ...action,
+                    enabled: true
+                }
             );
         }
     }
@@ -89,9 +92,13 @@ export class InputController {
      */
     disableAction(actionName) {
         if (this.#actionsMap.has(actionName)) {
+            const action = this.#actionsMap.get(actionName);
             this.#actionsMap.set(
                 actionName,
-                false
+                {
+                    ...action,
+                    enabled: false
+                }
             );
         }
     }
