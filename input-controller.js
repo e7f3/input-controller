@@ -27,6 +27,8 @@ export class InputController {
     #pressedKeys = new Set();
     // Прикрепленный DOM элемент
     #target;
+    // Объект Window для прикрепленного DOM элемента
+    #parentWindow;
 
     /**
      * @param {object} [actionsToBind] - необязательный аргумент. Объект со списком активностей вида 
@@ -121,11 +123,22 @@ export class InputController {
      * @param {boolean} [dontEnable] - необязательный аргумент. При значении true не активирует контроллер
      */
     attach(target, dontEnable) {
+        if (!target) {
+            return;
+        }
+
         this.#target = target;
 
         // Подписываемся на события и добавляем обработчики
         this.#target.addEventListener('keydown', this.#onKeyDown);
         this.#target.addEventListener('keyup', this.#onKeyUp);
+
+        this.#parentWindow = target?.ownerDocument?.defaultView;
+
+        if (this.#parentWindow) {
+            this.#parentWindow.addEventListener('focus', this.#onFocus);
+            this.#parentWindow.addEventListener('blur', this.#onBlur);
+        }
 
         if (dontEnable) {
             this.enabled = false;
@@ -137,8 +150,15 @@ export class InputController {
      */
     detach() {
         // Удаляем обработчики
+        if (this.#target) {
         this.#target.removeEventListener('keydown', this.#onKeyDown);
         this.#target.removeEventListener('keyup', this.#onKeyUp);
+        }
+
+        if (this.#parentWindow) {
+            this.#parentWindow.removeEventListener('focus', this.#onFocus);
+            this.#parentWindow.removeEventListener('blur', this.#onBlur);
+        }
     
         this.#target = null;
         this.enabled = false;
@@ -160,6 +180,39 @@ export class InputController {
      */
     isKeyPressed(keyCode) {
         return this.#pressedKeys.has(keyCode);
+    }
+
+    /**
+     * Создает кастомный эвент и отправляет его с именем активности
+     * @param {string} eventName - название эвента
+     * @param {string} actionName - имя активности
+     */
+    #emitEventForAction(eventName, actionName) {
+        const target = this.#target;
+
+        if (target && this.enabled) {
+            const event = new CustomEvent(
+                eventName, 
+                {
+                    detail: actionName
+                }
+            );
+            target.dispatchEvent(event);
+        }
+    }
+
+    /**
+     * Проверяет наличие активности для кода клавиши
+     * @param {string} keyCode 
+     * @returns {string} имя разрешенной (включенной) активности
+     */
+    #getEnabledActionName(keyCode) {
+        const actionName = this.#keysMap.get(keyCode);
+        const actionConfig = this.#actionsMap.get(actionName);
+
+        if (actionConfig?.enabled) {
+            return actionName;
+        }
     }
  
     /**
@@ -199,35 +252,18 @@ export class InputController {
     }
 
     /**
-     * Создает кастомный эвент и отправляет его с именем активности
-     * @param {string} eventName - название эвента
-     * @param {string} actionName - имя активности
+     * Обработчик для события blur
+     * @param {object} event объект Focus Event
      */
-    #emitEventForAction(eventName, actionName) {
-        const target = this.#target;
+    #onBlur(event) {
 
-        if (target && this.enabled) {
-            const event = new CustomEvent(
-                eventName, 
-                {
-                    detail: actionName
-                }
-            );
-            target.dispatchEvent(event);
-        }
     }
 
     /**
-     * Проверяет наличие активности для кода клавиши
-     * @param {string} keyCode 
-     * @returns {string} имя разрешенной (включенной) активности
+     * Обработчик для события focus
+     * @param {object} event объект Focus Event 
      */
-    #getEnabledActionName(keyCode) {
-        const actionName = this.#keysMap.get(keyCode);
-        const actionConfig = this.#actionsMap.get(actionName);
+    #onFocus(event) {
 
-        if (actionConfig?.enabled) {
-            return actionName;
-        }
     }
 } 
