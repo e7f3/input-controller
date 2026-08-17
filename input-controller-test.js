@@ -59,10 +59,22 @@ function loop(timestamp) {
     }
 
     const elapsed = timestamp - start;
-    const shift = Math.min(0.1 * elapsed, 200);
+
+    if (controller.isActionActive('moveLeft') && controller.isActionActive('moveRight')) {
+        requestAnimationFrame(loop);
+        return;
+    }
 
     if (controller.isActionActive('moveLeft')) {
-        testTarget.style.transform = `translateX${step}px`
+        testTarget.style.transform = `translateX(${-0.03 * elapsed}px)`;
+    }
+
+    if (controller.isActionActive('moveRight')) {
+        testTarget.style.transform = `translateX(${0.03 * elapsed}px)`;
+    }
+
+    if (controller.isActionActive('jump')) {
+        testTarget.classList.add('painted');
     }
 
         requestAnimationFrame(loop);
