@@ -102,14 +102,19 @@ export class InputController {
      * @param {boolean} [dontEnable] - необязательный аргумент. При значении true не активирует контроллер
      */
     attach(target, dontEnable) {
+        this.#target = target;
 
+        if (dontEnable) {
+            this.enabled = false;
+        }
     }
     
     /**
      * Отцеплят контроллер от DOM элемента и деактивирует контроллер 
      */
     detach() {
-
+        this.#target = null;
+        this.enabled = false;
     }
 
     /**
