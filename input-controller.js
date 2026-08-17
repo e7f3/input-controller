@@ -27,8 +27,8 @@ class InputController {
     #pressedKeys = new Set();
     // Прикрепленный DOM элемент
     #target;
-    // Объект Window для прикрепленного DOM элемента
-    #parentWindow;
+    // Объект Document для прикрепленного DOM элемента
+    #parentDocument;
 
     /**
      * @param {object} [actionsToBind] - необязательный аргумент. Объект со списком активностей вида 
@@ -130,11 +130,10 @@ class InputController {
         this.#target.addEventListener('keydown', this.#onKeyDown);
         this.#target.addEventListener('keyup', this.#onKeyUp);
 
-        this.#parentWindow = target?.ownerDocument?.defaultView;
+        this.#parentDocument = target?.ownerDocument;
 
-        if (this.#parentWindow) {
-            this.#parentWindow.addEventListener('focus', this.#onFocus);
-            this.#parentWindow.addEventListener('blur', this.#onBlur);
+        if (this.#parentDocument) {
+            this.#parentDocument.addEventListener('visibilitychange', this.#onVisibilityChange);
         }
 
         if (dontEnable) {
@@ -152,9 +151,8 @@ class InputController {
             this.#target.removeEventListener('keyup', this.#onKeyUp);
         }
 
-        if (this.#parentWindow) {
-            this.#parentWindow.removeEventListener('focus', this.#onFocus);
-            this.#parentWindow.removeEventListener('blur', this.#onBlur);
+        if (this.#parentDocument) {
+            this.#parentDocument.removeEventListener('visibilitychange', this.#onVisibilityChange);
         }
     
         this.#target = null;
@@ -249,20 +247,20 @@ class InputController {
     }
     
     /**
-     * Обработчик для события blur
-     * @param {object} event объект Focus Event
+     * Обработчик события visibilitychange
+     * @param {object} event - объект VisibilityChange Event
+     * @returns 
      */
-    #onBlur(event) {
-        this.focused = false;
-        this.enabled = false;
-    }
-
-    /**
-     * Обработчик для события focus
-     * @param {object} event объект Focus Event 
-     */
-    #onFocus(event) {
-        this.focused = true;
-        this.enabled = true;
+    #onVisibilityChange(event) {
+        switch(event.target.visibilityState) {
+            case 'visible':
+                this.focused = false;
+                this.enabled = false;
+                return;
+            case 'hidden':
+                this.focused = true;
+                this.enabled = true;
+                return;
+        }
     }
 }
