@@ -125,14 +125,12 @@ class InputController {
         }
 
         this.#target = target;
-
-        // Подписываемся на события и добавляем обработчики
-        this.#target.addEventListener('keydown', this.#onKeyDown);
-        this.#target.addEventListener('keyup', this.#onKeyUp);
-
         this.#parentDocument = target?.ownerDocument;
 
+        // Подписываемся на события и добавляем обработчики
         if (this.#parentDocument) {
+            this.#parentDocument.addEventListener('keydown', this.#onKeyDown.bind(this));
+            this.#parentDocument.addEventListener('keydown', this.#onKeyUp.bind(this));
             this.#parentDocument.addEventListener('visibilitychange', this.#onVisibilityChange);
         }
 
@@ -146,12 +144,9 @@ class InputController {
      */
     detach() {
         // Удаляем обработчики
-        if (this.#target) {
-            this.#target.removeEventListener('keydown', this.#onKeyDown);
-            this.#target.removeEventListener('keyup', this.#onKeyUp);
-        }
-
         if (this.#parentDocument) {
+            this.#parentDocument.removeEventListener('keydown', this.#onKeyDown.bind(this));
+            this.#parentDocument.removeEventListener('keydown', this.#onKeyUp.bind(this));
             this.#parentDocument.removeEventListener('visibilitychange', this.#onVisibilityChange);
         }
     
