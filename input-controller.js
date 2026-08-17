@@ -173,8 +173,12 @@ export class InputController {
                 return;
             }
 
-            const actionName = this.#keysMap.get(keyCode);
-            actionName && this.#pressedKeys.add(keyCode);
+            const actionName = this.#getEnabledActionName(keyCode);
+
+            if (actionName) {
+                this.#pressedKeys.add(keyCode);
+                this.#emitEventForAction(this.ACTION_ACTIVATED, actionName);
+            }
         }
     }
 
@@ -185,7 +189,45 @@ export class InputController {
     #onKeyUp(event) {
         const keyCode = event.keyCode;
         if (keyCode) {
+            const actionName = this.#getEnabledActionName(keyCode);
+
+            if (actionName) {
             this.#pressedKeys.delete(keyCode);
+                this.#emitEventForAction(this.ACTION_DEACTIVATED, actionName);
+            }
+        }
+    }
+
+    /**
+     * Создает кастомный эвент и отправляет его с именем активности
+     * @param {string} eventName - название эвента
+     * @param {string} actionName - имя активности
+     */
+    #emitEventForAction(eventName, actionName) {
+        const target = this.#target;
+
+        if (target && this.enabled) {
+            const event = new CustomEvent(
+                eventName, 
+                {
+                    detail: actionName
+                }
+            );
+            target.dispatchEvent(event);
+        }
+    }
+
+    /**
+     * Проверяет наличие активности для кода клавиши
+     * @param {string} keyCode 
+     * @returns {string} имя разрешенной (включенной) активности
+     */
+    #getEnabledActionName(keyCode) {
+        const actionName = this.#keysMap.get(keyCode);
+        const actionConfig = this.#actionsMap.get(actionName);
+
+        if (actionConfig?.enabled) {
+            return actionName;
         }
     }
 } 
