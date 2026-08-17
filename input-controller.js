@@ -61,7 +61,6 @@ export class InputController {
      */
     bindActions(actionsToBind) {
         for (let actionName in actionsToBind) {
-            if (!this.#actionsMap.has(actionName)) {
                 const keys = actionsToBind[actionName]?.keys;
                 const enabled = actionsToBind[actionName]?.enabled
 
@@ -78,8 +77,6 @@ export class InputController {
                         active: false
                     }
                 );
-            }
-
         }
     }
 
