@@ -130,7 +130,7 @@ class InputController {
         // Подписываемся на события и добавляем обработчики
         if (this.#parentDocument) {
             this.#parentDocument.addEventListener('keydown', this.#onKeyDown.bind(this));
-            this.#parentDocument.addEventListener('keydown', this.#onKeyUp.bind(this));
+            this.#parentDocument.addEventListener('keyup', this.#onKeyUp.bind(this));
             this.#parentDocument.addEventListener('visibilitychange', this.#onVisibilityChange);
         }
 
@@ -146,7 +146,7 @@ class InputController {
         // Удаляем обработчики
         if (this.#parentDocument) {
             this.#parentDocument.removeEventListener('keydown', this.#onKeyDown.bind(this));
-            this.#parentDocument.removeEventListener('keydown', this.#onKeyUp.bind(this));
+            this.#parentDocument.removeEventListener('keyup', this.#onKeyUp.bind(this));
             this.#parentDocument.removeEventListener('visibilitychange', this.#onVisibilityChange);
         }
     
