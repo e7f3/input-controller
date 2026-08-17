@@ -21,6 +21,8 @@ export class InputController {
      * в качестве значений
      **/
     #actionsMap = new Map();
+    // Map с ключами keyCode и значениями actionName
+    #keysMap = new Map();
     // Set с keyCode (код клавиши) нажатых клавиш 
     #pressedKeys = new Set();
     // Прикрепленный DOM элемент
@@ -60,6 +62,11 @@ export class InputController {
             if (!this.#actionsMap.has(actionName)) {
                 const keys = actionsToBind[actionName]?.keys;
                 const enabled = actionsToBind[actionName]?.enabled
+
+                // Для каждого из кодов клавиш добавляем его в Map если такого кода еще там нет
+                for (let key of keys) {
+                    !this.#keysMap.get(key) && this.#keysMap.set(key, actionName);
+                }
 
                 this.#actionsMap.set(
                     actionName,
@@ -166,21 +173,19 @@ export class InputController {
                 return;
             }
 
-            const actions = this.#actionsMap.values();
-            for (let action of action) {
-                if (action.keys.has(keyCode)) {
-                    this.#pressedKeys.add(keyCode);
-                    return;
-                }
-            }
+            const actionName = this.#keysMap.get(keyCode);
+            actionName && this.#pressedKeys.add(keyCode);
         }
     }
 
     /**
      * Обработчик для события keyup
-     * @param {object} event 
+     * @param {object} event - объект Keyboard Event
      */
     #onKeyUp(event) {
-
+        const keyCode = event.keyCode;
+        if (keyCode) {
+            this.#pressedKeys.delete(keyCode);
+        }
     }
 } 
