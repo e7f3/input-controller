@@ -141,6 +141,8 @@ class InputController {
         if (dontEnable) {
             this.enabled = false;
         }
+
+        this.focused = this.#parentDocument.visibilityState === 'visible';
     }
     
     /**
