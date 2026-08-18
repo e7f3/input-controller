@@ -235,13 +235,11 @@ class InputController {
             const actionName = this.#getEnabledActionName(keyCode);
 
             if (actionName) {
-                if (this.isActionActive(actionName)) {
-                    return;
+                if (!this.isActionActive(actionName)) {
+                    this.#emitEventForAction(this.ACTION_ACTIVATED, actionName);
                 }
 
                 this.#pressedKeys.add(keyCode);
-
-                this.#emitEventForAction(this.ACTION_ACTIVATED, actionName);
             }
         }
     }
