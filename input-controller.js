@@ -119,13 +119,18 @@ class InputController {
     }
 
     /**
-     * Нацеливает контроллер на переданный  DOM
+     * Нацеливает контроллер на переданный DOM
      * @param {object} target - DOM элемент для прослушивания событий клавиатуры и диспатча кастомных событий
      * @param {boolean} [dontEnable] - необязательный аргумент. При значении true не активирует контроллер
      */
     attach(target, dontEnable) {
         if (!target) {
             return;
+        }
+
+        // Если уже имеется прикрепленный DOM элемент, отписываемся от событий
+        if (this.#target) {
+            this.detach();
         }
 
         this.#target = target;
