@@ -180,9 +180,9 @@ class InputController {
     #emitEventForAction(eventName, actionName) {
         const target = this.#target;
 
-        if (target && this.enabled) {
+        if (target && this.enabled && this.focused) {
             const event = new CustomEvent(
-                eventName, 
+                eventName,
                 {
                     detail: actionName
                 }
@@ -255,16 +255,7 @@ class InputController {
      * @returns 
      */
     #onVisibilityChange(event) {
-        switch(event.target.visibilityState) {
-            case 'visible':
-                this.focused = false;
-                this.enabled = false;
-                return;
-            case 'hidden':
-                this.focused = true;
-                this.enabled = true;
-                return;
-        }
+        this.focused = event.target.visibilityState === 'visible';
     }
 
 }
