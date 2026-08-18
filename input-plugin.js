@@ -49,6 +49,7 @@ class InputPlugin {
         }
 
         this.pressed.add(id);
+        this.#notifyController(id);
     }
 
     /**
@@ -57,6 +58,7 @@ class InputPlugin {
      */
     release(id) {
         this.pressed.delete(id);
+        this.#notifyController(id);
     }
 
     /**
@@ -65,7 +67,28 @@ class InputPlugin {
      * @returns {boolean}
      */
     isActionActive(action) {
-        const ids = action[this.type] ?? [];
+        const ids = this.getIdsFromAction(action);
         return ids.some(id => this.pressed.has(id));
+    }
+
+    /**
+     * Хелпер для получения списка id кнопок/клавиш для данного плагина
+     * @param {object} action - конфиг активности
+     * @returns {Array<number|string>}
+     */
+    getIdsFromAction(action) {
+        return action[this.type] ?? [];
+    }
+
+    /**
+     * Уведомляет контроллер о случившемся нажатии кнопки/клавиши и обновляет связанную активность
+     * @param {number} id - уникальный идентификатор клавиши/кнопки и тд.
+     */
+    #notifyController(id) {
+        const actionName = this.controller.getActionName(this.type, id);
+
+        if (actionName) {
+            this.controller.refreshAction(actionName);
+        }
     }
 }
