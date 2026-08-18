@@ -10,24 +10,27 @@
         <div class="test-field">
             <div class="test-dom-element">Тестовый DOM Элемент</div>
         </div>
+        <div class="info-container">
+            <div class="event-logs"></div>
+        </div>
         <div class="buttons-container">
-            <button type="button" class="button">
+            <button type="button" class="button button--attach">
                 Прикрепить к DOM Элементу
             </button>
 
-            <button type="button" class="button">
+            <button type="button" class="button button--detach">
                 Открепить от DOM Элемента
             </button>
 
-            <button type="button" class="button">
+            <button type="button" class="button button--enable">
                 Активация контроллера
             </button>
 
-            <button type="button" class="button">
+            <button type="button" class="button button--disable">
                 Деактиваия контроллера
             </button>
 
-            <button type="button" class="button">
+            <button type="button" class="button button--bind-jump">
                 Бинд активности "Прыжок"
             </button>
         </div>
@@ -60,7 +63,7 @@
         height: 100%;
         display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: 1fr max-content;
+        grid-template-rows: 1fr max-content max-content;
         gap: 1rem;
     }
 
@@ -71,7 +74,9 @@
         width: 100%;
         height: 100%;
         display: flex;
+        justify-content: center;
         align-items: center;
+        overflow: hidden;
     }
 
     .test-dom-element {
@@ -87,6 +92,29 @@
 
     .painted {
         background-color: #ff3b30;
+    }
+
+    .info-container {
+        border: 1px solid #ff3b30;
+        border-radius: 4px;
+        padding: 1rem 0;
+
+        width: 100%;
+        height: calc(120px - 2rem);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .event-logs {
+        max-height: 100%;
+        max-width: max(30%, 500px);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        overflow-y: scroll;
+        gap: 0.5rem;
     }
 
     .buttons-container {
@@ -120,11 +148,14 @@
     }
 
     .button:hover {
-        background-color: #1a1a1a22
+        background-color: #1a1a1a88
     }
 
     .button:active {
         transform: scale(0.98);
     }
 </style>
+
+<script src="./input-controller.js"></script>
+<script src="./input-controller-test.js"></script>
 </html>
