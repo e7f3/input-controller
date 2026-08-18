@@ -25,7 +25,7 @@ function enableController() {
 }
 
 function disableController() {
-    controller.enable = false;
+    controller.enabled = false;
 }
 
 function attachTarget() {
