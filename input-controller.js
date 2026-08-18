@@ -41,6 +41,10 @@ class InputController {
      * @param {object} [target] - необязательный аргумент. DOM элемент для прослушивания событий клавиатуры и диспатча кастомных событий
      */
     constructor(actionsToBind, target) {
+        this.#bindedOnKeyDown = this.#onKeyDown.bind(this);
+        this.#bindedOnKeyUp = this.#onKeyUp.bind(this);
+        this.#bindedOnVisibilityChange = this.#onVisibilityChange.bind(this);
+
         if (actionsToBind && typeof actionsToBind === 'object') {
             this.bindActions(actionsToBind);
         }
@@ -129,9 +133,9 @@ class InputController {
 
         // Подписываемся на события и добавляем обработчики
         if (this.#parentDocument) {
-            this.#parentDocument.addEventListener('keydown', this.#onKeyDown.bind(this));
-            this.#parentDocument.addEventListener('keyup', this.#onKeyUp.bind(this));
-            this.#parentDocument.addEventListener('visibilitychange', this.#onVisibilityChange);
+            this.#parentDocument.addEventListener('keydown', this.#bindedOnKeyDown);
+            this.#parentDocument.addEventListener('keyup', this.#bindedOnKeyUp);
+            this.#parentDocument.addEventListener('visibilitychange', this.#bindedOnVisibilityChange);
         }
 
         if (dontEnable) {
@@ -145,9 +149,9 @@ class InputController {
     detach() {
         // Удаляем обработчики
         if (this.#parentDocument) {
-            this.#parentDocument.removeEventListener('keydown', this.#onKeyDown.bind(this));
-            this.#parentDocument.removeEventListener('keyup', this.#onKeyUp.bind(this));
-            this.#parentDocument.removeEventListener('visibilitychange', this.#onVisibilityChange);
+            this.#parentDocument.removeEventListener('keydown', this.#bindedOnKeyDown);
+            this.#parentDocument.removeEventListener('keyup', this.#bindedOnKeyUp);
+            this.#parentDocument.removeEventListener('visibilitychange', this.#bindedOnVisibilityChange);
         }
     
         this.#target = null;
@@ -258,4 +262,8 @@ class InputController {
         this.focused = event.target.visibilityState === 'visible';
     }
 
+    // Методы обработчиков событий с привязаным this
+    #bindedOnKeyDown;
+    #bindedOnKeyUp;
+    #bindedOnVisibilityChange
 }
