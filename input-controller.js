@@ -379,15 +379,18 @@ class InputController {
      * Устанавливает значения в #setPluginsKeysActionsMap
      */
     #setPluginsKeysActionsMap() {
-        for (let [actionName, actionConfig] of this.#actionsMaps.enties()) {
+        for (let [actionName, actionConfig] of this.#actionsMap.entries()) {
             for (let type of this.#pluginsMap.keys()) {
-                const codesMap = new Map();
+                const codesMap = this.#pluginsKeysActionsMap.get(type) ?? new Map();
                 const codes = actionConfig[type] ?? [];
                 codes.forEach(code => codesMap.set(code, actionName));
-                this.#pluginsKeysActionsMap.set(plugin.type, codesMap);
+
+                this.#pluginsKeysActionsMap.set(
+                    type,
+                    codesMap
+                );
             }
         }
-        
     }
 
     // Методы обработчиков событий с привязаным this
