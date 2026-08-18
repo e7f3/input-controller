@@ -30,6 +30,8 @@ class InputController {
     #parentDocument;
     // Map с ключами plugin.type и значениями экземплярами плагинов
     #pluginsMap = new Map();
+    // Map с ключами plugin.type и значениями Map, с ключами keyCode и значениями actionName
+    #pluginsKeysActionsMap = new Map();
 
     /**
      * @param {object} [actionsToBind] - необязательный аргумент. Объект со списком активностей вида 
@@ -88,6 +90,8 @@ class InputController {
                 }
             );
         }
+
+        this.#setPluginsKeysActionsMap();
     }
 
     /**
@@ -99,6 +103,7 @@ class InputController {
             plugins.forEach(plugin => {
                 this.initPlugin(plugin);
                 this.#pluginsMap.set(plugin.type, plugin);
+                this.#setPluginsKeysActionsMap();
             })
         }
     }
@@ -326,6 +331,21 @@ class InputController {
      */
     #onVisibilityChange(event) {
         this.focused = event.target.visibilityState === 'visible';
+    }
+
+    /**
+     * Устанавливает значения в #setPluginsKeysActionsMap
+     */
+    #setPluginsKeysActionsMap() {
+        for (let [actionName, actionConfig] of this.#actionsMaps.enties()) {
+            for (let type of this.#pluginsMap.keys()) {
+                const codesMap = new Map();
+                const codes = actionConfig[type] ?? [];
+                codes.forEach(code => codesMap.set(code, actionName));
+                this.#pluginsKeysActionsMap.set(plugin.type, codesMap);
+            }
+        }
+        
     }
 
     // Методы обработчиков событий с привязаным this
