@@ -204,10 +204,13 @@ class InputController {
      * @returns {boolean} статус активности true/false
      */
     isActionActive(actionName) {
-        const hasAnyAttachedKeysPressed = Array.from(
-            this.#actionsMap.get(actionName)?.keys ?? []
-        ).some(keyCode => this.#pressedKeys.has(keyCode));
-        return hasAnyAttachedKeysPressed || false;
+        const action = this.#actionsMap.get(actionName);
+
+        if (!action) {
+            return false;
+        }
+
+        return Array.from(this.#pluginsMap.values()).some(plugin => plugin.isActionActive(action));
     }
 
     /**
