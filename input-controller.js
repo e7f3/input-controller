@@ -68,9 +68,9 @@ class InputController {
             const keys = actionsToBind[actionName]?.keys;
             const enabled = actionsToBind[actionName]?.enabled
 
-            // Для каждого из кодов клавиш добавляем его в Map если такого кода еще там нет
+            // Для каждого из кодов клавиш добавляем его в Map, перезаписываем связаную активность если код уже был записан
             for (let key of keys) {
-                !this.#keysMap.get(key) && this.#keysMap.set(key, actionName);
+                this.#keysMap.set(key, actionName);
             }
 
             this.#actionsMap.set(
