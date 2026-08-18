@@ -11,7 +11,7 @@
             <div class="test-dom-element">Тестовый DOM Элемент</div>
         </div>
         <div class="info-container">
-            <div class="event-logs"></div>
+            <div class="logs"></div>
         </div>
         <div class="buttons-container">
             <button type="button" class="button button--attach">
@@ -106,7 +106,7 @@
         align-items: center;
     }
 
-    .event-logs {
+    .logs {
         max-height: 100%;
         max-width: max(30%, 500px);
         display: flex;
@@ -114,7 +114,7 @@
         align-items: flex-start;
         justify-content: flex-start;
         overflow-y: scroll;
-        gap: 0.5rem;
+        scrollbar-width: thin;
     }
 
     .buttons-container {

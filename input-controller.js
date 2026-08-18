@@ -78,7 +78,6 @@ class InputController {
                 {
                     keys: keys || [],
                     enabled: enabled || false,
-                    active: false
                 }
             );
         }
@@ -171,7 +170,10 @@ class InputController {
      * @returns {boolean} статус активности true/false
      */
     isActionActive(actionName) {
-        return this.#actionsMap.get(actionName)?.active || false;
+        const hasAnyAttachedKeysPressed = Array.from(
+            this.#actionsMap.get(actionName)?.keys ?? []
+        ).some(keyCode => this.#pressedKeys.has(keyCode));
+        return hasAnyAttachedKeysPressed || false;
     }
 
     /**
@@ -234,11 +236,12 @@ class InputController {
             const actionName = this.#getEnabledActionName(keyCode);
 
             if (actionName) {
+                if (this.isActionActive(actionName)) {
+                    return;
+                }
+
                 this.#pressedKeys.add(keyCode);
-                this.#actionsMap.set(actionName, {
-                    ...this.#actionsMap.get(actionName),
-                    active: true
-                });
+
                 this.#emitEventForAction(this.ACTION_ACTIVATED, actionName);
             }
         }
@@ -259,10 +262,11 @@ class InputController {
 
             if (actionName) {
                 this.#pressedKeys.delete(keyCode);
-                this.#actionsMap.set(actionName, {
-                    ...this.#actionsMap.get(actionName),
-                    active: false
-                });
+
+                if (this.isActionActive(actionName)) {
+                    return;
+                }
+
                 this.#emitEventForAction(this.ACTION_DEACTIVATED, actionName);
             }
         }
