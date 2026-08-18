@@ -24,7 +24,6 @@ class InputController {
     #keysMap = new Map();
     // Set с keyCode (код клавиши) нажатых клавиш 
     #pressedKeys = new Set();
-
     // Set имен активных активностей
     #activeActions = new Set();
     // Прикрепленный DOM элемент
@@ -48,8 +47,6 @@ class InputController {
      * @param {Array<InputPlugin>} [plugins] - необязательный аргумент. Список плагинов ввода для подключения.
      */
     constructor(actionsToBind, target, plugins) {
-        this.#bindedOnKeyDown = this.#onKeyDown.bind(this);
-        this.#bindedOnKeyUp = this.#onKeyUp.bind(this);
         this.#bindedOnVisibilityChange = this.#onVisibilityChange.bind(this);
 
         if (actionsToBind && typeof actionsToBind === 'object') {
@@ -165,8 +162,6 @@ class InputController {
 
         // Подписываемся на события и добавляем обработчики
         if (this.#parentDocument) {
-            this.#parentDocument.addEventListener('keydown', this.#bindedOnKeyDown);
-            this.#parentDocument.addEventListener('keyup', this.#bindedOnKeyUp);
             this.#parentDocument.addEventListener('visibilitychange', this.#bindedOnVisibilityChange);
         }
         
@@ -186,8 +181,6 @@ class InputController {
     detach() {
         // Удаляем обработчики
         if (this.#parentDocument) {
-            this.#parentDocument.removeEventListener('keydown', this.#bindedOnKeyDown);
-            this.#parentDocument.removeEventListener('keyup', this.#bindedOnKeyUp);
             this.#parentDocument.removeEventListener('visibilitychange', this.#bindedOnVisibilityChange);
         }
     
@@ -219,7 +212,6 @@ class InputController {
      * @returns {boolean}
      */
     isKeyPressed(keyCode) {
-        // return this.#pressedKeys.has(keyCode);
         return this.isInputPressed('keys', keyCode);
     }
 
@@ -290,6 +282,7 @@ class InputController {
         const target = this.#target;
 
         if (target && this.enabled && this.focused) {
+
             const event = new CustomEvent(
                 eventName,
                 {
@@ -311,58 +304,6 @@ class InputController {
 
         if (actionConfig?.enabled) {
             return actionName;
-        }
-    }
-
-    /**
-     * Обработчик для события keydown
-     * @param {object} event - объект Keyboard Event
-     */
-    #onKeyDown(event) {
-        if (!this.enabled) {
-            return;
-        }
-
-        const keyCode = event.keyCode;
-        if (keyCode) {
-            if (this.#pressedKeys.has(keyCode)) {
-                return;
-            }
-
-            const actionName = this.#getEnabledActionName(keyCode);
-
-            if (actionName) {
-                if (!this.isActionActive(actionName)) {
-                    this.#emitEventForAction(this.ACTION_ACTIVATED, actionName);
-                }
-
-                this.#pressedKeys.add(keyCode);
-            }
-        }
-    }
-
-    /**
-     * Обработчик для события keyup
-     * @param {object} event - объект Keyboard Event
-     */
-    #onKeyUp(event) {
-        if (!this.enabled) {
-            return;
-        }
-        
-        const keyCode = event.keyCode;
-        if (keyCode) {
-            const actionName = this.#getEnabledActionName(keyCode);
-
-            if (actionName) {
-                this.#pressedKeys.delete(keyCode);
-
-                if (this.isActionActive(actionName)) {
-                    return;
-                }
-
-                this.#emitEventForAction(this.ACTION_DEACTIVATED, actionName);
-            }
         }
     }
     
@@ -394,7 +335,5 @@ class InputController {
     }
 
     // Методы обработчиков событий с привязаным this
-    #bindedOnKeyDown;
-    #bindedOnKeyUp;
-    #bindedOnVisibilityChange
+    #bindedOnVisibilityChange;
 }
