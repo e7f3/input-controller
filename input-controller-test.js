@@ -51,34 +51,33 @@ enableButton.onclick = enableController;
 disableButton.onclick = disableController;
 bindJumpButton.onclick = bindJump;
 
-let start;
+let startTime;
+let xCoord = 0;
+let SPEED = 0.03;
 
 function loop(timestamp) {
-    if (start === undefined) {
-        start = timestamp;
+    if (startTime === undefined) {
+        startTime = timestamp;
     }
 
-    const elapsed = timestamp - start;
-
-    if (controller.isActionActive('moveLeft') && controller.isActionActive('moveRight')) {
-        requestAnimationFrame(loop);
-        return;
-    }
+    const timeChange = timestamp - startTime;
+    startTime = timestamp;
 
     if (controller.isActionActive('moveLeft')) {
-        testTarget.style.transform = `translateX(${-0.03 * elapsed}px)`;
+        xCoord -= SPEED * timeChange;
     }
 
     if (controller.isActionActive('moveRight')) {
-        testTarget.style.transform = `translateX(${0.03 * elapsed}px)`;
+        xCoord += SPEED * timeChange;
     }
+
+    testTarget.style.transform = `translateX(${xCoord}px)`;
 
     if (controller.isActionActive('jump')) {
         testTarget.classList.add('painted');
     }
 
-        requestAnimationFrame(loop);
-
+    requestAnimationFrame(loop);
 }
 
 requestAnimationFrame(loop);
