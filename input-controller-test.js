@@ -75,6 +75,8 @@ function loop(timestamp) {
 
     if (controller.isActionActive('jump')) {
         testTarget.classList.add('painted');
+    } else {
+        testTarget.classList.remove('painted');
     }
 
     requestAnimationFrame(loop);
