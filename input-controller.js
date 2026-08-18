@@ -24,6 +24,9 @@ class InputController {
     #keysMap = new Map();
     // Set с keyCode (код клавиши) нажатых клавиш 
     #pressedKeys = new Set();
+
+    // Set имен активных активностей
+    #activeActions = new Set();
     // Прикрепленный DOM элемент
     #target;
     // Объект Document для прикрепленного DOM элемента
@@ -236,6 +239,38 @@ class InputController {
 
         if (this.#target) {
             plugin?.attach?.(this.#target);
+        }
+    }
+
+    /**
+     * Возвращает имя активности по предоставленому типу плагина и коду кнопки/клавиши и тд.
+     * @param {string} type 
+     * @param {number} keyCode 
+     * @returns {string|undefined}
+     */
+    getActionName(type, keyCode) {
+        return this.#pluginsKeysActionsMap.get(type)?.get(keyCode);
+    }
+
+    /**
+     * Обновляет данные переданной активности и отправляет необходимые эвенты
+     * @param {string} actionName - имя активности
+     */
+    refreshAction(actionName) {
+        if (
+            !this.enabled || 
+            !this.focused || 
+            !this.#actionsMap.get(actionName).enabled
+        ) {
+            return;
+        }
+
+        if (this.#activeActions.has(actionName)) {
+            this.#emitEventForAction(this.ACTION_DEACTIVATED, actionName);
+            this.#activeActions.delete(actionName);
+        } else {
+            this.#emitEventForAction(this.ACTION_ACTIVATED, actionName);
+            this.#activeActions.add(actionName);
         }
     }
 
