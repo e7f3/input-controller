@@ -161,6 +161,9 @@ class InputController {
             this.#parentDocument.addEventListener('keyup', this.#bindedOnKeyUp);
             this.#parentDocument.addEventListener('visibilitychange', this.#bindedOnVisibilityChange);
         }
+        
+        // Прикрепляем DOM элемент к каждому плагину
+        this.#plugins.values().forEach(plugin => plugin.attach(target));
 
         if (dontEnable) {
             this.enabled = false;
@@ -170,7 +173,7 @@ class InputController {
     }
     
     /**
-     * Отцеплят контроллер от DOM элемента и деактивирует контроллер 
+     * Отцепляет контроллер от DOM элемента и деактивирует контроллер 
      */
     detach() {
         // Удаляем обработчики
@@ -180,6 +183,9 @@ class InputController {
             this.#parentDocument.removeEventListener('visibilitychange', this.#bindedOnVisibilityChange);
         }
     
+        // Отцепляем DOM элемент для каждого плагина
+        this.#plugins.values().forEach(plugin => plugin.detach());
+
         this.#target = null;
         this.enabled = false;
     }
