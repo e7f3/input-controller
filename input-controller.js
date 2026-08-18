@@ -29,7 +29,7 @@ class InputController {
     // Объект Document для прикрепленного DOM элемента
     #parentDocument;
     // Map с ключами plugin.type и значениями экземплярами плагинов
-    #plugins = new Map();
+    #pluginsMap = new Map();
 
     /**
      * @param {object} [actionsToBind] - необязательный аргумент. Объект со списком активностей вида 
@@ -98,7 +98,7 @@ class InputController {
         if (plugins && Array.isArray(plugins)) {
             plugins.forEach(plugin => {
                 this.initPlugin(plugin);
-                this.#plugins.set(plugin.type, plugin);
+                this.#pluginsMap.set(plugin.type, plugin);
             })
         }
     }
@@ -163,7 +163,7 @@ class InputController {
         }
         
         // Прикрепляем DOM элемент к каждому плагину
-        this.#plugins.values().forEach(plugin => plugin.attach(target));
+        this.#pluginsMap.values().forEach(plugin => plugin.attach(target));
 
         if (dontEnable) {
             this.enabled = false;
@@ -184,7 +184,7 @@ class InputController {
         }
     
         // Отцепляем DOM элемент для каждого плагина
-        this.#plugins.values().forEach(plugin => plugin.detach());
+        this.#pluginsMap.values().forEach(plugin => plugin.detach());
 
         this.#target = null;
         this.enabled = false;
@@ -219,7 +219,7 @@ class InputController {
      * @returns {boolean}
      */
     isInputPressed(type, id) {
-        return this.#plugins.get(type)?.pressed.has(id);
+        return this.#pluginsMap.get(type)?.pressed.has(id);
     }
 
     /**
