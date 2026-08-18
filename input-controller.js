@@ -16,7 +16,6 @@ class InputController {
      * {
      *      keys: new Set(),
      *      enabled: false,
-     *      active: false,
      * }
      * в качестве значений
      **/
