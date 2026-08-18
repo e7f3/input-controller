@@ -208,7 +208,18 @@ class InputController {
      * @returns {boolean}
      */
     isKeyPressed(keyCode) {
-        return this.#pressedKeys.has(keyCode);
+        // return this.#pressedKeys.has(keyCode);
+        return this.isInputPressed('keys', keyCode);
+    }
+
+    /**
+     * Проверка нажатия кнопки/клавиши у конкретного плагина
+     * @param {string} type - тип плагина ввода
+     * @param {*} id - идентификатор кнопки/клавиши и тд.
+     * @returns {boolean}
+     */
+    isInputPressed(type, id) {
+        return this.#plugins.get(type)?.pressed.has(id);
     }
 
     /**
