@@ -268,12 +268,16 @@ class InputController {
             return;
         }
 
-        if (this.#activeActions.has(actionName)) {
+        if (this.#activeActions.has(actionName) && !this.isActionActive(actionName)) {
             this.#emitEventForAction(this.ACTION_DEACTIVATED, actionName);
             this.#activeActions.delete(actionName);
-        } else {
+            return;
+        }
+
+        if (!this.#activeActions.has(actionName) && this.isActionActive(actionName)) {
             this.#emitEventForAction(this.ACTION_ACTIVATED, actionName);
             this.#activeActions.add(actionName);
+            return
         }
     }
 
