@@ -28,6 +28,8 @@ class InputController {
     #target;
     // Объект Document для прикрепленного DOM элемента
     #parentDocument;
+    // Map с ключами plugin.type и значениями экземплярами плагинов
+    #plugins = new Map();
 
     /**
      * @param {object} [actionsToBind] - необязательный аргумент. Объект со списком активностей вида 
@@ -54,7 +56,7 @@ class InputController {
         }
 
         if (plugins && Array.isArray(plugins)) {
-            plugins.forEach(plugin => this.initPlugin(plugin))
+            this.connectPlugins(plugins);
         }
     }
 
@@ -94,7 +96,10 @@ class InputController {
      */
     connectPlugins(plugins) {
         if (plugins && Array.isArray(plugins)) {
-            plugins.forEach(plugin => this.initPlugin(plugin))
+            plugins.forEach(plugin => {
+                this.initPlugin(plugin);
+                this.#plugins.set(plugin.type, plugin);
+            })
         }
     }
 
