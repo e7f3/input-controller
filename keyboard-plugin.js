@@ -6,6 +6,12 @@ class KeyboardPlugin extends InputPlugin {
     type = 'keys';
     #parentDocument;
 
+    init(controller) {
+        super.init(controller);
+        this.#bindedOnKeyDown = this.#onKeyDown.bind(this);
+        this.#bindedOnKeyUp = this.#onKeyUp.bind(this);
+    }
+
     /**
      * Обработчик для события keydown
      * @param {object} event - объект Keyboard Event
@@ -39,8 +45,8 @@ class KeyboardPlugin extends InputPlugin {
         super.attach(target);
 
         if (this.#parentDocument) {
-            this.#parentDocument.addEventListener('keydown', this.#onKeyDown);
-            this.#parentDocument.addEventListener('keyup', this.#onKeyUp);
+            this.#parentDocument.addEventListener('keydown', this.#bindedOnKeyDown);
+            this.#parentDocument.addEventListener('keyup', this.#bindedOnKeyUp);
         }
     }
 
@@ -49,11 +55,14 @@ class KeyboardPlugin extends InputPlugin {
      */
     detach() {
         if (this.#parentDocument) {
-            this.#parentDocument.removeEventListener('keydown', this.#onKeyDown);
-            this.#parentDocument.removeEventListener('keyup', this.#onKeyUp);
+            this.#parentDocument.removeEventListener('keydown', this.#bindedOnKeyDown);
+            this.#parentDocument.removeEventListener('keyup', this.#bindedOnKeyUp);
         }
 
         this.#parentDocument = null;
         super.detach();
     }
+
+    #bindedOnKeyDown;
+    #bindedOnKeyUp;
 }
