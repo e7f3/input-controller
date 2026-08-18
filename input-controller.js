@@ -221,6 +221,10 @@ class InputController {
      * @param {object} event - объект Keyboard Event
      */
     #onKeyDown(event) {
+        if (!this.enabled) {
+            return;
+        }
+
         const keyCode = event.keyCode;
         if (keyCode) {
             if (this.#pressedKeys.has(keyCode)) {
@@ -245,6 +249,10 @@ class InputController {
      * @param {object} event - объект Keyboard Event
      */
     #onKeyUp(event) {
+        if (!this.enabled) {
+            return;
+        }
+        
         const keyCode = event.keyCode;
         if (keyCode) {
             const actionName = this.#getEnabledActionName(keyCode);
