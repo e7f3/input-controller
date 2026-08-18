@@ -1,5 +1,6 @@
 /**
  * Класс плагина клавиатуры для работы с InputController
+ * @extends InputPlugin
  */
 class KeyboardPlugin extends InputPlugin {
     type = 'keys';

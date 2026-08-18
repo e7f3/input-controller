@@ -38,8 +38,9 @@ class InputController {
      *  }
      * }
      * @param {object} [target] - необязательный аргумент. DOM элемент для прослушивания событий клавиатуры и диспатча кастомных событий
+     * @param {Array<InputPlugin>} [plugins] - необязательный аргумент. Список плагинов ввода для подключения.
      */
-    constructor(actionsToBind, target) {
+    constructor(actionsToBind, target, plugins) {
         this.#bindedOnKeyDown = this.#onKeyDown.bind(this);
         this.#bindedOnKeyUp = this.#onKeyUp.bind(this);
         this.#bindedOnVisibilityChange = this.#onVisibilityChange.bind(this);
@@ -51,7 +52,12 @@ class InputController {
         if (target && typeof target === 'object') {
             this.attach(target);
         }
+
+        if (plugins && Array.isArray(plugins)) {
+            plugins.forEach(plugin => this.initPlugin(plugin))
+        }
     }
+
     /**
      * Добавляет в контроллер переданные активности
      * @param {object} actionsToBind - Объект со списком активностей вида 
@@ -79,6 +85,16 @@ class InputController {
                     enabled: enabled || false,
                 }
             );
+        }
+    }
+
+    /**
+     * Подключает переданные плагины ввода к контроллеру
+     * @param {Array<InputPlugin>} plugins - cписок плагинов ввода для подключения.
+     */
+    connectPlugins(plugins) {
+        if (plugins && Array.isArray(plugins)) {
+            plugins.forEach(plugin => this.initPlugin(plugin))
         }
     }
 
@@ -182,6 +198,18 @@ class InputController {
      */
     isKeyPressed(keyCode) {
         return this.#pressedKeys.has(keyCode);
+    }
+
+    /**
+     * Инициализирует переданный плагин и передает DOM элемент при наличии
+     * @param {InputPlugin} plugin - экземпляр плагина имплементирующий InputPlugin
+     */
+    initPlugin(plugin) {
+        plugin?.init?.(this);
+
+        if (this.#target) {
+            plugin?.attach?.(this.#target);
+        }
     }
 
     /**
