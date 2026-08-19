@@ -6,6 +6,10 @@ class KeyboardPlugin extends InputPlugin {
     type = 'keys';
     #parentDocument;
 
+    /**
+     * Инициализирует InputPlugin и биндит обработчики классов
+     * @param {InputController} controller - экземпляр класса InputController
+     */
     init(controller) {
         super.init(controller);
         this.#bindedOnKeyDown = this.#onKeyDown.bind(this);
@@ -14,7 +18,7 @@ class KeyboardPlugin extends InputPlugin {
 
     /**
      * Обработчик для события keydown
-     * @param {object} event - объект Keyboard Event
+     * @param {object} event - объект KeyboardEvent
      */
     #onKeyDown(event) {
         if (event.keyCode) {
@@ -24,7 +28,7 @@ class KeyboardPlugin extends InputPlugin {
 
     /**
      * Обработчик для события keyup
-     * @param {object} event - объект Keyboard Event
+     * @param {object} event - объект KeyboardEvent
      */
     #onKeyUp(event) {
         if (event.keyCode) {
@@ -63,6 +67,7 @@ class KeyboardPlugin extends InputPlugin {
         super.detach();
     }
 
+    // Обработчики событий с привязкой this
     #bindedOnKeyDown;
     #bindedOnKeyUp;
 }
