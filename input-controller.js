@@ -71,15 +71,17 @@ class InputController {
      * }
      */
     bindActions(actionsToBind) {
-        for (let actionName in actionsToBind) {
-            const keys = actionsToBind[actionName]?.keys;
-            const enabled = actionsToBind[actionName]?.enabled
+        if (!actionsToBind || typeof actionsToBind !== 'object') {
+            return;
+        }
 
+        for (let [actionName, actionConfig] of Object.entries(actionsToBind)) {
             this.#actionsMap.set(
                 actionName,
                 {
-                    keys: keys || [],
-                    enabled: enabled || false,
+                    ...actionConfig,
+                    name: actionName,
+                    enabled: actionConfig?.enabled || false,
                 }
             );
         }
