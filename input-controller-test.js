@@ -20,6 +20,14 @@ controller.bindActions({
     'moveRight': {
         enabled: true,
         keys: [39, 68]
+    },
+    'moveUp': {
+        enabled: true,
+        mouse: [0]
+    },
+    'moveDown': {
+        enabled: true,
+        mouse: [2]
     }
 });
 
@@ -84,7 +92,7 @@ connectKeysButton.onclick = connectKeys;
 connectMouseButton.onclick = connectMouse;
 
 function logCustomEvents(customEvent) {
-    writeLog(` ${customEvent.detail} => ${customEvent.type}`);
+    writeLog(`${customEvent.detail} => ${customEvent.type}`);
 }
 
 testTarget.addEventListener(controller.ACTION_ACTIVATED, logCustomEvents);
@@ -92,6 +100,7 @@ testTarget.addEventListener(controller.ACTION_DEACTIVATED, logCustomEvents);
 
 let startTime;
 let xCoord = 0;
+let yCoord = 0;
 let SPEED = 0.03;
 
 function loop(timestamp) {
@@ -110,7 +119,15 @@ function loop(timestamp) {
         xCoord += SPEED * timeChange;
     }
 
-    testTarget.style.transform = `translateX(${xCoord}px)`;
+    if (controller.isActionActive('moveUp')) {
+        yCoord -= SPEED * timeChange;
+    }
+
+    if (controller.isActionActive('moveDown')) {
+        yCoord += SPEED * timeChange;
+    }
+
+    testTarget.style.transform = `translateX(${xCoord}px) translateY(${yCoord}px)`;
 
     if (controller.isActionActive('jump')) {
         testTarget.classList.add('painted');
