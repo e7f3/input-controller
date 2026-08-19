@@ -192,7 +192,7 @@ class InputController {
     isActionActive(actionName) {
         const action = this.#actionsMap.get(actionName);
 
-        if (!action) {
+        if (!action || !action.enabled) {
             return false;
         }
 
