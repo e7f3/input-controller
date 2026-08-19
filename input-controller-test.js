@@ -7,6 +7,7 @@ const enableButton = document.querySelector('.button--enable');
 const disableButton = document.querySelector('.button--disable');
 const bindJumpButton = document.querySelector('.button--bind-jump');
 const connectKeysButton = document.querySelector('.button--connect-keys');
+const connectMouseButton = document.querySelector('.button--connect-mouse');
 
 const logs = document.querySelector('.logs');
 
@@ -67,12 +68,20 @@ function connectKeys() {
     writeLog('Keyboard plugin connected!');
 }
 
+function connectMouse() {
+    controller.connectPlugins([
+        new MousePlugin()
+    ]);
+    writeLog('Mouse plugin connected!');
+}
+
 attachButton.onclick = attachTarget;
 detachButton.onclick = detachTarget;
 enableButton.onclick = enableController;
 disableButton.onclick = disableController;
 bindJumpButton.onclick = bindJump;
 connectKeysButton.onclick = connectKeys;
+connectMouseButton.onclick = connectMouse;
 
 function logCustomEvents(customEvent) {
     writeLog(` ${customEvent.detail} => ${customEvent.type}`);
