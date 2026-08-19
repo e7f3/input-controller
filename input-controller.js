@@ -14,7 +14,7 @@ class InputController {
     /**
      * Map с ключами actionName (имя активности) и объектом вида
      * {
-     *      keys: new Set(),
+     *      [pluginName]: new Set(),
      *      enabled: false,
      * }
      * в качестве значений
@@ -36,9 +36,9 @@ class InputController {
     /**
      * @param {object} [actionsToBind] - необязательный аргумент. Объект со списком активностей вида 
      * { 
-     *  "actionName": {
-     *      "keys": [],
-     *      "enabled": true,
+     *  actionName: {
+     *      [pluginName]: [],
+     *      enabled: true,
      *  }
      * }
      * @param {object} [target] - необязательный аргумент. DOM элемент для прослушивания событий клавиатуры и диспатча кастомных событий
@@ -64,9 +64,9 @@ class InputController {
      * Добавляет в контроллер переданные активности
      * @param {object} actionsToBind - Объект со списком активностей вида 
      * { 
-     *  "actionName": {
-     *      "keys": [],
-     *      "enabled": true,
+     *  actionName: {
+     *      [pluginName]: [],
+     *      enabled: true,
      *  }
      * }
      */
