@@ -33,6 +33,14 @@
             <button type="button" class="button button--bind-jump">
                 Бинд активности "Прыжок"
             </button>
+
+            <button type="button" class="button button--connect-keys">
+                Подключить плагин "Клавиатура"
+            </button>
+            
+            <button type="button" class="button button--connect-mouse">
+                Подключить плагин "Мышь"
+            </button>
         </div>
     </div>
     
@@ -127,7 +135,7 @@
         justify-content: center;
         align-items: center;
         flex-wrap: wrap;
-        gap: 1rem
+        gap: 1rem;
     }
 
     .button {
@@ -156,6 +164,9 @@
     }
 </style>
 
+<script src="./input-plugin.js"></script>
+<script src="./keyboard-plugin.js"></script>
+<script src="./mouse-plugin.js"></script>
 <script src="./input-controller.js"></script>
 <script src="./input-controller-test.js"></script>
 </html>

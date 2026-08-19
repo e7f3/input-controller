@@ -14,34 +14,37 @@ class InputController {
     /**
      * Map с ключами actionName (имя активности) и объектом вида
      * {
-     *      keys: new Set(),
+     *      [pluginName]: new Set(),
      *      enabled: false,
      * }
      * в качестве значений
      **/
     #actionsMap = new Map();
-    // Map с ключами keyCode и значениями actionName
-    #keysMap = new Map();
     // Set с keyCode (код клавиши) нажатых клавиш 
     #pressedKeys = new Set();
+    // Set имен активных активностей
+    #activeActions = new Set();
     // Прикрепленный DOM элемент
     #target;
     // Объект Document для прикрепленного DOM элемента
     #parentDocument;
+    // Map с ключами plugin.type и значениями экземплярами плагинов
+    #pluginsMap = new Map();
+    // Map с ключами plugin.type и значениями Map, с ключами keyCode и значениями actionName
+    #pluginsKeysActionsMap = new Map();
 
     /**
      * @param {object} [actionsToBind] - необязательный аргумент. Объект со списком активностей вида 
      * { 
-     *  "actionName": {
-     *      "keys": [],
-     *      "enabled": true,
+     *  actionName: {
+     *      [pluginName]: [],
+     *      enabled: true,
      *  }
      * }
      * @param {object} [target] - необязательный аргумент. DOM элемент для прослушивания событий клавиатуры и диспатча кастомных событий
+     * @param {Array<InputPlugin>} [plugins] - необязательный аргумент. Список плагинов ввода для подключения.
      */
-    constructor(actionsToBind, target) {
-        this.#bindedOnKeyDown = this.#onKeyDown.bind(this);
-        this.#bindedOnKeyUp = this.#onKeyUp.bind(this);
+    constructor(actionsToBind, target, plugins) {
         this.#bindedOnVisibilityChange = this.#onVisibilityChange.bind(this);
 
         if (actionsToBind && typeof actionsToBind === 'object') {
@@ -51,34 +54,52 @@ class InputController {
         if (target && typeof target === 'object') {
             this.attach(target);
         }
+
+        if (plugins && Array.isArray(plugins)) {
+            this.connectPlugins(plugins);
+        }
     }
+
     /**
      * Добавляет в контроллер переданные активности
      * @param {object} actionsToBind - Объект со списком активностей вида 
      * { 
-     *  "actionName": {
-     *      "keys": [],
-     *      "enabled": true,
+     *  actionName: {
+     *      [pluginName]: [],
+     *      enabled: true,
      *  }
      * }
      */
     bindActions(actionsToBind) {
-        for (let actionName in actionsToBind) {
-            const keys = actionsToBind[actionName]?.keys;
-            const enabled = actionsToBind[actionName]?.enabled
+        if (!actionsToBind || typeof actionsToBind !== 'object') {
+            return;
+        }
 
-            // Для каждого из кодов клавиш добавляем его в Map, перезаписываем связаную активность если код уже был записан
-            for (let key of keys) {
-                this.#keysMap.set(key, actionName);
-            }
-
+        for (let [actionName, actionConfig] of Object.entries(actionsToBind)) {
             this.#actionsMap.set(
                 actionName,
                 {
-                    keys: keys || [],
-                    enabled: enabled || false,
+                    ...actionConfig,
+                    name: actionName,
+                    enabled: actionConfig?.enabled || false,
                 }
             );
+        }
+
+        this.#setPluginsKeysActionsMap();
+    }
+
+    /**
+     * Подключает переданные плагины ввода к контроллеру
+     * @param {Array<InputPlugin>} plugins - cписок плагинов ввода для подключения.
+     */
+    connectPlugins(plugins) {
+        if (plugins && Array.isArray(plugins)) {
+            plugins.forEach(plugin => {
+                this.initPlugin(plugin);
+                this.#pluginsMap.set(plugin.type, plugin);
+                this.#setPluginsKeysActionsMap();
+            })
         }
     }
 
@@ -136,29 +157,31 @@ class InputController {
 
         // Подписываемся на события и добавляем обработчики
         if (this.#parentDocument) {
-            this.#parentDocument.addEventListener('keydown', this.#bindedOnKeyDown);
-            this.#parentDocument.addEventListener('keyup', this.#bindedOnKeyUp);
             this.#parentDocument.addEventListener('visibilitychange', this.#bindedOnVisibilityChange);
         }
+        
+        // Прикрепляем DOM элемент к каждому плагину
+        this.#pluginsMap.values().forEach(plugin => plugin.attach(target));
 
         if (dontEnable) {
             this.enabled = false;
         }
 
-        this.focused = this.#parentDocument.visibilityState === 'visible';
+        this.focused = this.#parentDocument?.visibilityState === 'visible' ?? false;
     }
     
     /**
-     * Отцеплят контроллер от DOM элемента и деактивирует контроллер 
+     * Отцепляет контроллер от DOM элемента и деактивирует контроллер 
      */
     detach() {
         // Удаляем обработчики
         if (this.#parentDocument) {
-            this.#parentDocument.removeEventListener('keydown', this.#bindedOnKeyDown);
-            this.#parentDocument.removeEventListener('keyup', this.#bindedOnKeyUp);
             this.#parentDocument.removeEventListener('visibilitychange', this.#bindedOnVisibilityChange);
         }
     
+        // Отцепляем DOM элемент для каждого плагина
+        this.#pluginsMap.values().forEach(plugin => plugin.detach());
+
         this.#target = null;
         this.enabled = false;
     }
@@ -169,10 +192,13 @@ class InputController {
      * @returns {boolean} статус активности true/false
      */
     isActionActive(actionName) {
-        const hasAnyAttachedKeysPressed = Array.from(
-            this.#actionsMap.get(actionName)?.keys ?? []
-        ).some(keyCode => this.#pressedKeys.has(keyCode));
-        return hasAnyAttachedKeysPressed || false;
+        const action = this.#actionsMap.get(actionName);
+
+        if (!action || !action.enabled) {
+            return false;
+        }
+
+        return Array.from(this.#pluginsMap.values()).some(plugin => plugin.isActionActive(action));
     }
 
     /**
@@ -181,7 +207,65 @@ class InputController {
      * @returns {boolean}
      */
     isKeyPressed(keyCode) {
-        return this.#pressedKeys.has(keyCode);
+        return this.isInputPressed('keys', keyCode);
+    }
+
+    /**
+     * Проверка нажатия кнопки/клавиши у конкретного плагина
+     * @param {string} type - тип плагина ввода
+     * @param {*} id - идентификатор кнопки/клавиши и тд.
+     * @returns {boolean}
+     */
+    isInputPressed(type, id) {
+        return this.#pluginsMap.get(type)?.pressed.has(id);
+    }
+
+    /**
+     * Инициализирует переданный плагин и передает DOM элемент при наличии
+     * @param {InputPlugin} plugin - экземпляр плагина имплементирующий InputPlugin
+     */
+    initPlugin(plugin) {
+        plugin?.init?.(this);
+
+        if (this.#target) {
+            plugin?.attach?.(this.#target);
+        }
+    }
+
+    /**
+     * Возвращает имя активности по предоставленому типу плагина и коду кнопки/клавиши и тд.
+     * @param {string} type 
+     * @param {number} keyCode 
+     * @returns {string|undefined}
+     */
+    getActionName(type, keyCode) {
+        return this.#pluginsKeysActionsMap.get(type)?.get(keyCode);
+    }
+
+    /**
+     * Обновляет данные переданной активности и отправляет необходимые эвенты
+     * @param {string} actionName - имя активности
+     */
+    refreshAction(actionName) {
+        if (
+            !this.enabled || 
+            !this.focused || 
+            !this.#actionsMap.get(actionName).enabled
+        ) {
+            return;
+        }
+
+        if (this.#activeActions.has(actionName) && !this.isActionActive(actionName)) {
+            this.#emitEventForAction(this.ACTION_DEACTIVATED, actionName);
+            this.#activeActions.delete(actionName);
+            return;
+        }
+
+        if (!this.#activeActions.has(actionName) && this.isActionActive(actionName)) {
+            this.#emitEventForAction(this.ACTION_ACTIVATED, actionName);
+            this.#activeActions.add(actionName);
+            return
+        }
     }
 
     /**
@@ -193,6 +277,7 @@ class InputController {
         const target = this.#target;
 
         if (target && this.enabled && this.focused) {
+
             const event = new CustomEvent(
                 eventName,
                 {
@@ -200,72 +285,6 @@ class InputController {
                 }
             );
             target.dispatchEvent(event);
-        }
-    }
-
-    /**
-     * Проверяет наличие активности для кода клавиши
-     * @param {string} keyCode 
-     * @returns {string} имя разрешенной (включенной) активности
-     */
-    #getEnabledActionName(keyCode) {
-        const actionName = this.#keysMap.get(keyCode);
-        const actionConfig = this.#actionsMap.get(actionName);
-
-        if (actionConfig?.enabled) {
-            return actionName;
-        }
-    }
-
-    /**
-     * Обработчик для события keydown
-     * @param {object} event - объект Keyboard Event
-     */
-    #onKeyDown(event) {
-        if (!this.enabled) {
-            return;
-        }
-
-        const keyCode = event.keyCode;
-        if (keyCode) {
-            if (this.#pressedKeys.has(keyCode)) {
-                return;
-            }
-
-            const actionName = this.#getEnabledActionName(keyCode);
-
-            if (actionName) {
-                if (!this.isActionActive(actionName)) {
-                    this.#emitEventForAction(this.ACTION_ACTIVATED, actionName);
-                }
-
-                this.#pressedKeys.add(keyCode);
-            }
-        }
-    }
-
-    /**
-     * Обработчик для события keyup
-     * @param {object} event - объект Keyboard Event
-     */
-    #onKeyUp(event) {
-        if (!this.enabled) {
-            return;
-        }
-        
-        const keyCode = event.keyCode;
-        if (keyCode) {
-            const actionName = this.#getEnabledActionName(keyCode);
-
-            if (actionName) {
-                this.#pressedKeys.delete(keyCode);
-
-                if (this.isActionActive(actionName)) {
-                    return;
-                }
-
-                this.#emitEventForAction(this.ACTION_DEACTIVATED, actionName);
-            }
         }
     }
     
@@ -278,8 +297,24 @@ class InputController {
         this.focused = event.target.visibilityState === 'visible';
     }
 
+    /**
+     * Устанавливает значения в #setPluginsKeysActionsMap
+     */
+    #setPluginsKeysActionsMap() {
+        for (let [actionName, actionConfig] of this.#actionsMap.entries()) {
+            for (let type of this.#pluginsMap.keys()) {
+                const codesMap = this.#pluginsKeysActionsMap.get(type) ?? new Map();
+                const codes = actionConfig[type] ?? [];
+                codes.forEach(code => codesMap.set(code, actionName));
+
+                this.#pluginsKeysActionsMap.set(
+                    type,
+                    codesMap
+                );
+            }
+        }
+    }
+
     // Методы обработчиков событий с привязаным this
-    #bindedOnKeyDown;
-    #bindedOnKeyUp;
-    #bindedOnVisibilityChange
+    #bindedOnVisibilityChange;
 }
