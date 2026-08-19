@@ -45,7 +45,7 @@ class KeyboardPlugin extends InputPlugin {
             this.detach();
         }
 
-        this.#parentDocument = target?.ownerDocument;
+        this.#parentDocument = target?.ownerDocument ?? null;
         super.attach(target);
 
         if (this.#parentDocument) {
