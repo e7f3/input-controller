@@ -20,8 +20,6 @@ class InputController {
      * в качестве значений
      **/
     #actionsMap = new Map();
-    // Map с ключами keyCode и значениями actionName
-    #keysMap = new Map();
     // Set с keyCode (код клавиши) нажатых клавиш 
     #pressedKeys = new Set();
     // Set имен активных активностей
@@ -76,11 +74,6 @@ class InputController {
         for (let actionName in actionsToBind) {
             const keys = actionsToBind[actionName]?.keys;
             const enabled = actionsToBind[actionName]?.enabled
-
-            // Для каждого из кодов клавиш добавляем его в Map, перезаписываем связаную активность если код уже был записан
-            for (let key of keys) {
-                this.#keysMap.set(key, actionName);
-            }
 
             this.#actionsMap.set(
                 actionName,
@@ -290,20 +283,6 @@ class InputController {
                 }
             );
             target.dispatchEvent(event);
-        }
-    }
-
-    /**
-     * Проверяет наличие активности для кода клавиши
-     * @param {string} keyCode 
-     * @returns {string} имя разрешенной (включенной) активности
-     */
-    #getEnabledActionName(keyCode) {
-        const actionName = this.#keysMap.get(keyCode);
-        const actionConfig = this.#actionsMap.get(actionName);
-
-        if (actionConfig?.enabled) {
-            return actionName;
         }
     }
     
