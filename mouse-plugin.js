@@ -52,7 +52,7 @@ class MousePlugin extends InputPlugin {
      * @param {object} event - объект MouseEvent
      */
     #onMouseDown(event) {
-        if (event.button) {
+        if (event.button !== undefined) {
             this.press(event.button);
         }
     }
@@ -62,8 +62,8 @@ class MousePlugin extends InputPlugin {
      * @param {object} event - объект MouseEvent
      */
     #onMouseUp(event) {
-        if (event.button) {
-            this.press(event.button);
+        if (event.button !== undefined) {
+            this.release(event.button);
         }
     }
 
